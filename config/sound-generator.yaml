@@ -1,34 +1,39 @@
 esphome:
   on_boot:
-    then:
+    - then:
+      - globals.set:
+          id: sound_generator_initial_volume
+          value: '25.0'
       - number.set:
           id: sound_generator_volume
           value: !lambda "return id(sound_generator_initial_volume);"
-      - select.set_index:
-          id: sound_generator_select
-          index: !lambda "return id(sound_generator_initial_select_option);"
+      - logger.log:
+          format: "The initial volume is %d."
+          args: [ 'id(sound_generator_initial_volume)' ]
 
 globals:
   - id: sound_generator_initial_volume
-    type: int
+    type: float
     restore_value: false
-    initial_value: "25"
-  - id: sound_generator_initial_select_option
-    type: int
-    restore_value: false
-    initial_value: "0"
+    initial_value: '25'
 
 uart:
   baud_rate: 9600
-  rx_pin: GPIO17
-  tx_pin: GPIO18
+  rx_pin: ${rx_pin}
+  tx_pin: ${tx_pin}
 
 dfplayer:
+  on_finished_playback:
+    then:
+      - logger.log: 'Playback finished event'
+      - select.set_index:
+          id: sound_generator_choose_sound
+          index: 0
 
 select:
   - platform: template
     name: Select Sound
-    id: sound_generator_select
+    id: sound_generator_choose_sound
     optimistic: true
     options:
       - "Choose soundscape"
@@ -56,14 +61,16 @@ button:
     name: Volume down
     id: sound_generator_volume_down
     on_press:
-      - lambda: "id(sound_generator_initial_volume) -= 1;"
-      - dfplayer.set_volume: !lambda 'return id(sound_generator_initial_volume);'
+      - number.decrement:
+          id: sound_generator_volume
+          cycle: false
   - platform: template
     name: Volume up
     id: sound_generator_volume_up
     on_press:
-      - lambda: "id(sound_generator_initial_volume) += 1;"
-      - dfplayer.set_volume: !lambda 'return id(sound_generator_initial_volume);'
+      - number.increment:
+          id: sound_generator_volume
+          cycle: false
 
 number:
   - platform: template
@@ -75,17 +82,14 @@ number:
     optimistic: true
     on_value:
       then:
-        - globals.set:
-            id: sound_generator_initial_volume
-            value: !lambda 'return x;'
-        - dfplayer.set_volume: !lambda 'return id(sound_generator_initial_volume);'
+        - dfplayer.set_volume: !lambda 'return x;'
 
 binary_sensor:
   - platform: gpio
     id: dfplayer_work
-    name: Sound generator playing
+    name: Sleeping Master playing
     pin:
-      number: GPIO5
+      number: ${busy_pin}
       inverted: true
     on_state:
       then:

@@ -1,0 +1,30 @@
+packages:
+  config: !include base_config.yaml
+  sound_generator: !include sound-generator.yaml
+
+substitutions:
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  busy_pin: GPIO18
+  ap_ssid: sounder
+  ap_pwd: sounder1234
+
+esp32:
+  board: esp32dev
+
+esphome:
+  name: sleepy-master
+  friendly_name: Sleeping Master
+
+api:
+  encryption:
+    key: C25ZJlQnM90iA+0JmcwQZqgbaPK8cRO5yEe0MVTAEWM=
+
+wifi:
+  #  manual_ip:
+  #    static_ip: 192.168.1.230
+  #    gateway: 192.168.1.254
+  #    subnet: 255.255.255.0
+
+logger:
+

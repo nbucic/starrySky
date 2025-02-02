@@ -17,8 +17,15 @@ ota:
     password: "2bec6075b7ad5d28a9bdaa1e3c967d53"
 
 wifi:
-  ssid: ALHN-A459
-  password: d3KZbS9qa3
+  networks:
+#    - ssid: DWR-921-F705
+#      password: wirelessSifra1!
+    - ssid: ALHN-A459
+      password: d3KZbS9qa3
+
+  ap:
+    ssid: ${ap_ssid}
+    password: ${ap_pwd}
 
 
 captive_portal:
