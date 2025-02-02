@@ -1,0 +1,94 @@
+esphome:
+  on_boot:
+    then:
+      - number.set:
+          id: sound_generator_volume
+          value: !lambda "return id(sound_generator_initial_volume);"
+      - select.set_index:
+          id: sound_generator_select
+          index: !lambda "return id(sound_generator_initial_select_option);"
+
+globals:
+  - id: sound_generator_initial_volume
+    type: float
+    restore_value: false
+    initial_value: "25"
+  - id: sound_generator_initial_select_option
+    type: int
+    restore_value: false
+    initial_value: "0"
+
+uart:
+  baud_rate: 9600
+  rx_pin: GPIO17
+  tx_pin: GPIO18
+
+dfplayer:
+
+select:
+  - platform: template
+    name: Select Sound
+    id: sound_generator_select
+    optimistic: true
+    options:
+      - "Choose soundscape"
+      - "Winter Wind Storm in a Mountain Forest"
+      - "Fire Cracking"
+      - "Light Jungle Rain"
+      - "North Sea Waves"
+      - "Thunder and rain"
+      - "Pjesma 6"
+    on_value:
+      - then:
+          - if:
+              condition:
+                - lambda: 'return i > 0;'
+              then:
+                - dfplayer.play_mp3: !lambda 'return i;'
+          - if:
+              condition:
+                - lambda: 'return i == 0;'
+              then:
+                - dfplayer.stop
+
+button:
+  - platform: template
+    name: Volume down
+    id: sound_generator_volume_down
+    on_press:
+      - lambda: "id(sound_generator_initial_volume) -= 1;"
+      - dfplayer.set_volume: !lambda 'return id(sound_generator_initial_volume);'
+  - platform: template
+    name: Volume up
+    id: sound_generator_volume_up
+    on_press:
+      - lambda: "id(sound_generator_initial_volume) += 1;"
+      - dfplayer.set_volume: !lambda 'return id(sound_generator_initial_volume);'
+
+number:
+  - platform: template
+    name: Volume
+    id: sound_generator_volume
+    min_value: 0
+    max_value: 30
+    step: 1
+    optimistic: true
+    on_value:
+      then:
+        - globals.set:
+            id: sound_generator_initial_volume
+            value: !lambda 'return x;'
+        - dfplayer.set_volume: !lambda 'return id(sound_generator_initial_volume);'
+
+binary_sensor:
+  - platform: gpio
+    id: dfplayer_work
+    name: Sound generator playing
+    pin:
+      number: GPIO5
+      inverted: true
+    on_state:
+      then:
+        - logger.log:
+            format: "Current state is %s"
+            args: [ 'x' ]

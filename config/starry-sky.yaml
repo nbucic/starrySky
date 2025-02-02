@@ -1,0 +1,23 @@
+packages:
+  config: !include base_config.yaml
+  #sound_generator: !include sound-generator.yaml
+  stars: !include stars.yaml
+
+esphome:
+  name: starry-sky
+  friendly_name: Starry Sky
+  includes:
+    starrySky/starrySky.h
+
+esp32:
+  framework:
+    version: latest
+
+wifi:
+#  manual_ip:
+#    static_ip: 192.168.1.230
+#    gateway: 192.168.1.254
+#    subnet: 255.255.255.0
+
+logger:
+

@@ -1,0 +1,45 @@
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: arduino
+#    version: latest
+
+psram:
+  mode: octal
+
+api:
+  encryption:
+    key: "w7K6hi4jMBvsK6z6Zbdorfgy32ekEZ94iFiVVZB5rCU="
+
+ota:
+  - platform: esphome
+    password: "2bec6075b7ad5d28a9bdaa1e3c967d53"
+
+wifi:
+  ssid: ALHN-A459
+  password: d3KZbS9qa3
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Starry-Sky"
+    password: "starrysky1234"
+    ap_timeout: 30s
+
+
+captive_portal:
+
+sensor:
+  - platform: wifi_signal # Reports the Wi-Fi signal strength/RSSI in dB
+    name: "WiFi Signal dB"
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
+
+  - platform: copy # Reports the Wi-Fi signal strength in %
+    source_id: wifi_signal_db
+    name: "WiFi Signal Percent"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "Signal %"
+    entity_category: "diagnostic"
+    device_class: ""
