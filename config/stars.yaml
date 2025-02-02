@@ -19,6 +19,10 @@ globals:
     type: int
     restore_value: False
     initial_value: "0"
+  - id: stars_effect
+    type: int
+    restore_value: false
+    initial_value: "-1"
 
 
 substitutions:
@@ -68,10 +72,6 @@ light:
     blue: blue_channel_output
     white: white_channel_output
     default_transition_length: 1s
-    effects:
-      - lambda:
-            name: 7 Color Fade
-            lambda: StarrySky::turnOn(StarrySky::FunctionType::EFFECT, 1);
     on_turn_on:
       - lambda: "return id(stars_on_off_switch).turn_on();"
     on_turn_off:

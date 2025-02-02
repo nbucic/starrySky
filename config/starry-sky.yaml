@@ -1,7 +1,10 @@
 packages:
   config: !include base_config.yaml
-  #sound_generator: !include sound-generator.yaml
-  stars: !include stars.yaml
+  sound_generator: !include sound-generator.yaml
+  #stars: !include stars.yaml
+
+esp32:
+  board: esp32dev
 
 esphome:
   name: starry-sky
@@ -9,15 +12,18 @@ esphome:
   includes:
     starrySky/starrySky.h
 
-esp32:
-  framework:
-    version: latest
+api:
+  encryption:
+    key: C25ZJlQnM90iA+0JmcwQZqgbaPK8cRO5yEe0MVTAEWM=
 
 wifi:
 #  manual_ip:
 #    static_ip: 192.168.1.230
 #    gateway: 192.168.1.254
 #    subnet: 255.255.255.0
+  ap:
+    ssid: sounder
+    password: sounder1234
 
 logger:
 

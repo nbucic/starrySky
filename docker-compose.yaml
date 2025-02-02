@@ -1,6 +1,6 @@
 services:
-  esphome:
-    container_name: esphome
+  stars:
+    container_name: stars
     image: ghcr.io/esphome/esphome
     volumes:
       - ./config:/config

@@ -1,16 +1,16 @@
 esp32:
-  board: esp32-s3-devkitc-1
-  flash_size: 16MB
+  #board: esp32-s3-devkitc-1
+  #flash_size: 16MB
   framework:
     type: arduino
 #    version: latest
 
-psram:
-  mode: octal
+#psram:
+#  mode: octal
 
 api:
   encryption:
-    key: "w7K6hi4jMBvsK6z6Zbdorfgy32ekEZ94iFiVVZB5rCU="
+    key:
 
 ota:
   - platform: esphome
@@ -19,11 +19,6 @@ ota:
 wifi:
   ssid: ALHN-A459
   password: d3KZbS9qa3
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
-  ap:
-    ssid: "Starry-Sky"
-    password: "starrysky1234"
-    ap_timeout: 30s
 
 
 captive_portal:

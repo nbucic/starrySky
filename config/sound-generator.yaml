@@ -10,7 +10,7 @@ esphome:
 
 globals:
   - id: sound_generator_initial_volume
-    type: float
+    type: int
     restore_value: false
     initial_value: "25"
   - id: sound_generator_initial_select_option
