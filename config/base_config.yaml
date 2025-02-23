@@ -18,8 +18,10 @@ ota:
 
 wifi:
   networks:
-#    - ssid: DWR-921-F705
-#      password: wirelessSifra1!
+    - ssid: Optima-F67DB0
+      password: OPTIMA3229267009878
+    - ssid: DWR-921-F705
+      password: wirelessSifra1!
     - ssid: ALHN-A459
       password: d3KZbS9qa3
 

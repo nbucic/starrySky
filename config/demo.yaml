@@ -1,0 +1,151 @@
+packages:
+    config: !include base_config.yaml
+
+substitutions:
+  busy_pin: GPIO18
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  ap_ssid: demo-sounder
+  ap_password: demoSounder1234
+
+esp32:
+  board: esp32dev
+
+esphome:
+  name: demo-sounder
+  friendly_name: Demo Sounder
+  on_boot:
+    - then:
+        - globals.set:
+            id: sound_generator_initial_volume
+            value: '25.0'
+        - dfplayer.set_volume: !lambda "return id('sound_generator_initial_volume');"
+        - logger.log:
+            format: "The initial volume is %d."
+            args: [ 'id(sound_generator_initial_volume)' ]
+
+logger:
+
+globals:
+  - id: sound_generator_initial_volume
+    type: float
+    restore_value: false
+    initial_value: '25'
+
+uart:
+  baud_rate: 9600
+  rx_pin: ${rx_pin}
+  tx_pin: ${tx_pin}
+
+dfplayer:
+  on_finished_playback:
+    then:
+      logger.log: 'Playback finished event'
+
+api:
+  encryption:
+    key: C25ZJlQnM90iA+0JmcwQZqgbaPK8cRO5yEe0MVTAEWM=
+  actions:
+    - action: dfplayer_next
+      then:
+        - dfplayer.play_next:
+    - action: dfplayer_previous
+      then:
+        - dfplayer.play_previous:
+    - action: dfplayer_play
+      variables:
+        file: int
+      then:
+        - dfplayer.play: !lambda 'return file;'
+    - action: dfplayer_play_mp3
+      variables:
+        file: int
+      then:
+        - dfplayer.play_mp3: !lambda 'return file;'
+    - action: dfplayer_play_loop
+      variables:
+        file: int
+        loop_: bool
+      then:
+        - dfplayer.play:
+            file: !lambda 'return file;'
+            loop: !lambda 'return loop_;'
+    - action: dfplayer_play_folder
+      variables:
+        folder: int
+        file: int
+      then:
+        - dfplayer.play_folder:
+            folder: !lambda 'return folder;'
+            file: !lambda 'return file;'
+
+    - action: dfplayer_play_loop_folder
+      variables:
+        folder: int
+      then:
+        - dfplayer.play_folder:
+            folder: !lambda 'return folder;'
+            loop: true
+
+    - action: dfplayer_set_device_tf
+      then:
+        - dfplayer.set_device: TF_CARD
+
+    - action: dfplayer_set_device_usb
+      then:
+        - dfplayer.set_device: USB
+
+    - action: dfplayer_set_volume
+      variables:
+        volume: int
+      then:
+        - dfplayer.set_volume: !lambda 'return volume;'
+    - action: dfplayer_set_eq
+      variables:
+        preset: int
+      then:
+        - dfplayer.set_eq: !lambda 'return static_cast<dfplayer::EqPreset>(preset);'
+
+    - action: dfplayer_sleep
+      then:
+        - dfplayer.sleep
+
+    - action: dfplayer_reset
+      then:
+        - dfplayer.reset
+
+    - action: dfplayer_start
+      then:
+        - dfplayer.start
+
+    - action: dfplayer_pause
+      then:
+        - dfplayer.pause
+
+    - action: dfplayer_stop
+      then:
+        - dfplayer.stop
+
+    - action: dfplayer_random
+      then:
+        - dfplayer.random
+
+    - action: dfplayer_volume_up
+      then:
+        - dfplayer.volume_up
+
+    - action: dfplayer_volume_down
+      then:
+        - dfplayer.volume_down
+
+binary_sensor:
+  # Expose MP3busy status
+  - platform: gpio
+    pin:
+      number: ${busy_pin}
+      mode: INPUT_PULLUP
+      inverted: True
+    name: "mp3busy"
+  # Expose status
+  - platform: status
+    name: "Sound machine status"
