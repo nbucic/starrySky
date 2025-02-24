@@ -1,15 +1,9 @@
 esphome:
   on_boot:
     - then:
-      - globals.set:
-          id: sound_generator_initial_volume
-          value: '25.0'
-      - number.set:
-          id: sound_generator_volume
-          value: !lambda "return id(sound_generator_initial_volume);"
-      - logger.log:
-          format: "The initial volume is %d."
-          args: [ 'id(sound_generator_initial_volume)' ]
+        - number.set:
+            id: sound_generator_volume
+            value: !lambda "return id(sound_generator_initial_volume);"
 
 globals:
   - id: sound_generator_initial_volume
@@ -25,7 +19,6 @@ uart:
 dfplayer:
   on_finished_playback:
     then:
-      - logger.log: 'Playback finished event'
       - select.set_index:
           id: sound_generator_choose_sound
           index: 0
@@ -42,35 +35,20 @@ select:
       - "Light Jungle Rain"
       - "North Sea Waves"
       - "Thunder and rain"
-      - "Pjesma 6"
+      - "TEST - makni uskoro"
+    initial_option: "Choose soundscape"
     on_value:
       - then:
           - if:
               condition:
-                - lambda: 'return i > 0;'
-              then:
-                - dfplayer.play_mp3: !lambda 'return i;'
-          - if:
-              condition:
-                - lambda: 'return i == 0;'
+                - lambda: 'return (id(sound_generator_choose_sound).active_index() == 0);'
               then:
                 - dfplayer.stop
-
-button:
-  - platform: template
-    name: Volume down
-    id: sound_generator_volume_down
-    on_press:
-      - number.decrement:
-          id: sound_generator_volume
-          cycle: false
-  - platform: template
-    name: Volume up
-    id: sound_generator_volume_up
-    on_press:
-      - number.increment:
-          id: sound_generator_volume
-          cycle: false
+          - if:
+              condition:
+                - lambda: 'return (id(sound_generator_choose_sound).active_index() > 0);'
+              then:
+                - dfplayer.play_mp3: !lambda "return i;"
 
 number:
   - platform: template
@@ -90,9 +68,7 @@ binary_sensor:
     name: Sleeping Master playing
     pin:
       number: ${busy_pin}
+      mode: INPUT_PULLUP
       inverted: true
-    on_state:
-      then:
-        - logger.log:
-            format: "Current state is %s"
-            args: [ 'x' ]
+  - platform: status
+    name: "Sound machine status"
