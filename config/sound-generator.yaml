@@ -10,11 +10,16 @@ globals:
     type: float
     restore_value: false
     initial_value: '25'
+  - id: sound_generator_initial_volume_per_song
+    type: float[7]
+    restore_value: false
+    initial_value: '{0, 25, 23, 25, 25, 25, 25}'
 
 uart:
   baud_rate: 9600
   rx_pin: ${rx_pin}
   tx_pin: ${tx_pin}
+#  debug:
 
 dfplayer:
   on_finished_playback:
@@ -43,12 +48,20 @@ select:
               condition:
                 - lambda: 'return (id(sound_generator_choose_sound).active_index() == 0);'
               then:
+                - number.set:
+                    id: sound_generator_volume
+                    value: !lambda 'return id(sound_generator_initial_volume_per_song)[i];'
+                - delay: 2s
                 - dfplayer.stop
           - if:
               condition:
                 - lambda: 'return (id(sound_generator_choose_sound).active_index() > 0);'
               then:
-                - dfplayer.play_mp3: !lambda "return i;"
+                - number.set:
+                    id: sound_generator_volume
+                    value: !lambda 'return id(sound_generator_initial_volume_per_song)[i];'
+                - delay: 2s
+                - dfplayer.play_mp3: !lambda 'return i;'
 
 number:
   - platform: template

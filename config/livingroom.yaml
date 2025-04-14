@@ -21,10 +21,9 @@ wifi:
   ssid: "ALHN-A459"
   password: "d3KZbS9qa3"
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  # Enable fallback hotspot (captive portal) in case Wi-Fi connection fails
   ap:
     ssid: "Living-Room Fallback Hotspot"
     password: "vau8k8zXemBm"
 
 captive_portal:
-    

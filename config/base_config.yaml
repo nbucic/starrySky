@@ -1,27 +1,14 @@
 esp32:
-  #board: esp32-s3-devkitc-1
-  #flash_size: 16MB
   framework:
     type: arduino
-#    version: latest
-
-#psram:
-#  mode: octal
+    version: latest
 
 api:
   encryption:
     key:
 
-ota:
-  - platform: esphome
-    password: "2bec6075b7ad5d28a9bdaa1e3c967d53"
-
 wifi:
   networks:
-    - ssid: Optima-F67DB0
-      password: OPTIMA3229267009878
-    - ssid: DWR-921-F705
-      password: wirelessSifra1!
     - ssid: ALHN-A459
       password: d3KZbS9qa3
 

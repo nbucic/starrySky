@@ -19,12 +19,19 @@ esphome:
 api:
   encryption:
     key: C25ZJlQnM90iA+0JmcwQZqgbaPK8cRO5yEe0MVTAEWM=
+  actions:
+    - action: sounder_play_mp3
+      variables:
+        file: int
+      then:
+        - dfplayer.play_mp3: !lambda 'return file;'
+    - action: sounder_play
+      variables:
+        file: int
+      then:
+        - dfplayer.play: !lambda 'return file;'
 
 wifi:
-  #  manual_ip:
-  #    static_ip: 192.168.1.230
-  #    gateway: 192.168.1.254
-  #    subnet: 255.255.255.0
 
 logger:
 

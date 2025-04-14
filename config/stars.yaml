@@ -26,8 +26,7 @@ globals:
 
 
 substitutions:
-  mac_address: 21:0A:00:06:8E:E5
-  #mac_address: 21:0A:00:06:86:9F
+  mac_address: ${mac_address}
 
 ble_client:
   - mac_address: ${mac_address}
