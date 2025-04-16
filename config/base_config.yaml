@@ -11,11 +11,12 @@ wifi:
   networks:
     - ssid: ALHN-A459
       password: d3KZbS9qa3
+    - ssid: LukaBu
+      password: wirelessSifra1!
 
   ap:
     ssid: ${ap_ssid}
     password: ${ap_pwd}
-
 
 captive_portal:
 
