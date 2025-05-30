@@ -1,7 +1,7 @@
 esp32:
   framework:
     type: arduino
-    version: latest
+    #version: latest
 
 api:
   encryption:
@@ -13,6 +13,8 @@ wifi:
       password: d3KZbS9qa3
     - ssid: LukaBu
       password: wirelessSifra1!
+    - ssid: Optima-F67DB0
+      password: OPTIMA3229267009878
 
   ap:
     ssid: ${ap_ssid}

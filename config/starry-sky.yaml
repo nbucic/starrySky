@@ -20,8 +20,8 @@ psram:
   mode: octal
 
 esphome:
-  name: starry-sky
-  friendly_name: Starry Sky
+  name: starry-sky-nash
+  friendly_name: Starko Nash
   includes:
     starrySky/starrySky.h
 

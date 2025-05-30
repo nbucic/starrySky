@@ -5,6 +5,19 @@ esphome:
             id: sound_generator_volume
             value: !lambda "return id(sound_generator_initial_volume);"
 
+api:
+  actions:
+    - action: play_mp3
+      variables:
+        file: int
+      then:
+        - dfplayer.play_mp3: !lambda 'return file;'
+    - action: play
+      variables:
+        file: int
+      then:
+        - dfplayer.play: !lambda 'return file;'
+
 globals:
   - id: sound_generator_initial_volume
     type: float
@@ -19,7 +32,7 @@ uart:
   baud_rate: 9600
   rx_pin: ${rx_pin}
   tx_pin: ${tx_pin}
-#  debug:
+  debug:
 
 dfplayer:
   on_finished_playback:
@@ -40,7 +53,6 @@ select:
       - "Light Jungle Rain"
       - "North Sea Waves"
       - "Thunder and rain"
-      - "TEST - makni uskoro"
     initial_option: "Choose soundscape"
     on_value:
       - then:

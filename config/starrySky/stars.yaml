@@ -25,9 +25,6 @@ globals:
     initial_value: "-1"
 
 
-substitutions:
-  mac_address: ${mac_address}
-
 ble_client:
   - mac_address: ${mac_address}
     id: stars_ble_client
@@ -70,7 +67,8 @@ light:
     green: green_channel_output
     blue: blue_channel_output
     white: white_channel_output
-    default_transition_length: 1s
+    # default_transition_length: 1s
+    default_transition_length: 0s
     on_turn_on:
       - lambda: "return id(stars_on_off_switch).turn_on();"
     on_turn_off:

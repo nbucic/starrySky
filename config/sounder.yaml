@@ -1,6 +1,7 @@
 packages:
-  config: !include base_config.yaml
-  sound_generator: !include sound-generator.yaml
+  config: !include starrySky/base_config.yaml
+  rain: !include starrySky/sound-generator.yaml
+
 
 substitutions:
   tx_pin: GPIO17
@@ -14,22 +15,11 @@ esp32:
 
 esphome:
   name: sleepy-master
-  friendly_name: Sleeping Master
+  friendly_name: Sleeping Master ESP32
 
 api:
   encryption:
     key: C25ZJlQnM90iA+0JmcwQZqgbaPK8cRO5yEe0MVTAEWM=
-  actions:
-    - action: sounder_play_mp3
-      variables:
-        file: int
-      then:
-        - dfplayer.play_mp3: !lambda 'return file;'
-    - action: sounder_play
-      variables:
-        file: int
-      then:
-        - dfplayer.play: !lambda 'return file;'
 
 wifi:
 
