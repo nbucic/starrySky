@@ -1,27 +1,96 @@
 packages:
-  config: !include starrySky/base_config.yaml
-  rain: !include starrySky/sound-generator.yaml
-
-
-substitutions:
-  tx_pin: GPIO17
-  rx_pin: GPIO16
-  busy_pin: GPIO18
-  ap_ssid: sounder
-  ap_pwd: sounder1234
+  common: !include base/common.yaml
 
 esp32:
   board: esp32dev
 
+substitutions:
+  name: rain-sound-player
+  friendly_name: Rain Sound Player
+  tx_pin: !secret tx_pin
+  rx_pin: !secret rx_pin
+  busy_pin: !secret busy_pin
+
 esphome:
-  name: sleepy-master
-  friendly_name: Sleeping Master ESP32
+  on_boot:
+    - number.set: { id: sound_generator_volume, value: !lambda "return id(sound_generator_initial_volume);" }
 
-api:
-  encryption:
-    key: C25ZJlQnM90iA+0JmcwQZqgbaPK8cRO5yEe0MVTAEWM=
+globals:
+  - id: sound_generator_initial_volume
+    type: float
+    restore_value: false
+    initial_value: '25'
+  - id: sound_generator_initial_volume_per_song
+    type: float[7]
+    restore_value: false
+    initial_value: '{0, 25, 23, 25, 25, 25, 23}'
 
-wifi:
+uart:
+  baud_rate: 9600
+  rx_pin: ${rx_pin}
+  tx_pin: ${tx_pin}
+  debug:
 
-logger:
+dfplayer:
+  on_finished_playback:
+    then:
+      - select.set_index:
+          id: sound_generator_choose_sound
+          index: 0
 
+select:
+  - platform: template
+    name: Select Sound
+    id: sound_generator_choose_sound
+    optimistic: true
+    options:
+      - "Choose soundscape"
+      - "Winter Wind Storm in a Mountain Forest"
+      - "Fire Cracking"
+      - "Light Jungle Rain"
+      - "North Sea Waves"
+      - "Thunder and rain"
+    initial_option: "Choose soundscape"
+    on_value:
+      - then:
+          - if:
+              condition:
+                - lambda: 'return (id(sound_generator_choose_sound).active_index() == 0);'
+              then:
+                - number.set:
+                    id: sound_generator_volume
+                    value: !lambda 'return id(sound_generator_initial_volume_per_song)[i];'
+                - delay: 2s
+                - dfplayer.stop
+          - if:
+              condition:
+                - lambda: 'return (id(sound_generator_choose_sound).active_index() > 0);'
+              then:
+                - number.set:
+                    id: sound_generator_volume
+                    value: !lambda 'return id(sound_generator_initial_volume_per_song)[i];'
+                - delay: 2s
+                - dfplayer.play_mp3: !lambda 'return i;'
+
+number:
+  - platform: template
+    name: Volume
+    id: sound_generator_volume
+    min_value: 0
+    max_value: 30
+    step: 1
+    optimistic: true
+    on_value:
+      then:
+        - dfplayer.set_volume: !lambda 'return x;'
+
+binary_sensor:
+  - platform: gpio
+    id: dfplayer_work
+    name: Sleeping Master playing
+    pin:
+      number: ${busy_pin}
+      mode: INPUT_PULLUP
+      inverted: true
+  - platform: status
+    name: "Rain sound player machine status"

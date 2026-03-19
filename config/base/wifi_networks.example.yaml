@@ -1,0 +1,4 @@
+wifi:
+  networks:
+    - ssid: <SSID>
+      password: <PASSWORD>

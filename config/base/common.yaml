@@ -1,26 +1,26 @@
+packages:
+  wifi: !include wifi_networks.yaml
+
 esp32:
   framework:
     type: arduino
-    #version: latest
 
-api:
-  encryption:
-    key:
-
+substitutions:
+  ap_ssid: SSC
+  ap_password: ssc12345
+  
 wifi:
-  networks:
-    - ssid: ALHN-A459
-      password: d3KZbS9qa3
-    - ssid: LukaBu
-      password: wirelessSifra1!
-    - ssid: Optima-F67DB0
-      password: OPTIMA3229267009878
-
   ap:
-    ssid: ${ap_ssid}
-    password: ${ap_pwd}
+    ssid: "${ap_ssid}"
+    password: "${ap_password}"
 
 captive_portal:
+
+esphome:
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+
+logger:
 
 sensor:
   - platform: wifi_signal # Reports the Wi-Fi signal strength/RSSI in dB
@@ -37,3 +37,7 @@ sensor:
     unit_of_measurement: "Signal %"
     entity_category: "diagnostic"
     device_class: ""
+
+api:
+  encryption:
+    key: !secret api_encryption_key
