@@ -1,12 +1,6 @@
 packages:
+  device: !include stars/config.yaml
   common: !include base/common.yaml
-
-esp32:
-  board: esp32-s3-devkitc-1
-  flash_size: 16MB
-
-psram:
-  mode: octal
 
 esphome:
   includes:
@@ -40,7 +34,7 @@ globals:
 
 
 ble_client:
-  - mac_address: !secret mac_address
+  - mac_address: ${ble_mac_address}
     id: stars_ble_client
     on_connect:
       then:

@@ -1,0 +1,12 @@
+# Device identity and hardware for the rain sound player (DFPlayer).
+# `name` must stay the same as the flashed device: OTA and the
+# sleepy-master.local address depend on it.
+substitutions:
+  name: sleepy-master
+  friendly_name: Sleeping Master ESP32
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  busy_pin: GPIO18
+
+esp32:
+  board: esp32dev
