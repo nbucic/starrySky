@@ -2,5 +2,10 @@
 # This is an example and may include too much for your use-case.
 # You can modify this file to suit your needs.
 /.esphome/
-/secrets.yaml
 /base/wifi_networks.yaml
+
+# Secrets, wherever they live
+secrets.yaml
+
+# ESPHome Device Builder state (contains a peer link key)
+.device-*

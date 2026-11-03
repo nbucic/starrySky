@@ -1,3 +1,5 @@
+# Shared by every device. Each device sets `name` and `friendly_name` in its
+# own `<device>/config.yaml`, which the device YAML includes before this file.
 packages:
   wifi: !include wifi_networks.yaml
 
@@ -5,10 +7,11 @@ esp32:
   framework:
     type: arduino
 
+# Defaults; a device's config.yaml can override them.
 substitutions:
   ap_ssid: SSC
   ap_password: ssc12345
-  
+
 wifi:
   ap:
     ssid: "${ap_ssid}"
@@ -41,3 +44,8 @@ sensor:
 api:
   encryption:
     key: !secret api_encryption_key
+
+# A bare `encryption:` block reuses the api encryption key above.
+ota:
+  - platform: esphome
+    encryption:

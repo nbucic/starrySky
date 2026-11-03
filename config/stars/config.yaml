@@ -1,0 +1,14 @@
+# Device identity and hardware for the starry sky controller.
+# `name` must stay the same as the flashed device: OTA and the
+# starry-sky-nash.local address depend on it.
+substitutions:
+  name: starry-sky-nash
+  friendly_name: Starko Nash
+  ble_mac_address: !secret mac_address
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+
+psram:
+  mode: octal

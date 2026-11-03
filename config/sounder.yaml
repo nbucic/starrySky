@@ -1,15 +1,6 @@
 packages:
+  device: !include sounder/config.yaml
   common: !include base/common.yaml
-
-esp32:
-  board: esp32dev
-
-substitutions:
-  name: rain-sound-player
-  friendly_name: Rain Sound Player
-  tx_pin: !secret tx_pin
-  rx_pin: !secret rx_pin
-  busy_pin: !secret busy_pin
 
 esphome:
   on_boot:

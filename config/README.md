@@ -48,32 +48,124 @@ calling the methods from the manipulation program using lambda calls.
 The built binary is too heavy for standard ESP32, so I created the build for the ESP32-S3, but feel free to play with
 other files
 
-### Setup ###
+The BLE command format lives in [`stars/starsBLE.h`](stars/starsBLE.h). Every message is a 20-byte frame; the header
+builds it from the light state (RGB or white), the effect number and the motor speed (0–4), and the YAML lambdas send it
+to the kit's `0000ffb1` characteristic.
 
-#### Wi-Fi Networks ####
+Home Assistant entities: `Stars` (RGBW light), `Stars Speed` (motor speed 0–4), `Stars connected` (BLE link state),
+plus the shared `WiFi Signal dB` and `WiFi Signal Percent`.
+
+## Rain sound player ##
+
+A plain ESP32 (`esp32dev`) with a DFPlayer Mini on UART plays soundscapes from the SD card. Home Assistant gets a
+`Select Sound` list, a `Volume` slider (0–30), a `Sleeping Master playing` sensor driven by the DFPlayer BUSY pin and a
+status sensor. Each song has its own starting volume in the `sound_generator_initial_volume_per_song` global.
+
+# Repository layout #
+
+```
+docker-compose.yaml          ESPHome container, mounts ./config as /config
+config/
+  starry-sky.yaml            Starry sky device (BLE bridge to the star ceiling kit)
+  sounder.yaml               Rain sound player device (DFPlayer)
+  base/
+    common.yaml              Shared by both devices: Wi-Fi, fallback AP, captive portal, logger,
+                             Wi-Fi signal sensors, Home Assistant API and OTA
+    wifi_networks.yaml       Your Wi-Fi networks (git-ignored, copy from the .example file)
+  stars/
+    config.yaml              Starry sky identity and hardware: name, board, PSRAM, BLE MAC
+    starsBLE.h               BLE command builder used from the YAML lambdas
+  sounder/
+    config.yaml              Sound player identity and hardware: name, board, UART and BUSY pins
+  secrets.yaml               Shared secrets (git-ignored, copy from the .example file)
+tests/
+  starrySky.cpp              Unit tests for starsBLE.h
+```
+
+Each device YAML includes its own `config.yaml` first, then `base/common.yaml`. Anything specific to one device
+(name, board, pins) goes in its `config.yaml`. Anything both devices need goes in `common.yaml`. Only real secrets go in
+`secrets.yaml`.
+
+# Setup #
+
+## Wi-Fi Networks ##
 
 Create a local network file from the example one:
 
-``` 
-cp base/wifi_networks.example.yaml base/wifi_networks.yaml 
+```
+cp config/base/wifi_networks.example.yaml config/base/wifi_networks.yaml
 ```
 
-Edit the `base/wifi_networks.yaml` and add as many networks as you need. Git ignores the file, so your credentials stay
-local.
+Edit `config/base/wifi_networks.yaml` and add as many networks as you need. Git ignores the file, so your credentials
+stay local.
 
-The build has access point mode enabled on the node. Default credentials are ssid: `SSC`, password: `ssc12345`, but if
-for
-any reason you want them different, change them from the command line:
+The build has access point mode enabled on the node. It starts when the device can't reach any known network for about a
+minute. Default credentials are ssid: `SSC`, password: `ssc12345`. To change them for one device, add `ap_ssid` and
+`ap_password` to that device's `config.yaml` substitutions.
+
+## Secrets ##
 
 ```
-esphome -s ap_ssid 'New AP SSID' -s ap_password 'New AP Password' config/compile sounder.yaml
+cp config/secrets.yaml.example config/secrets.yaml
 ```
 
-#### Device name ####
+| Key                  | Used by     | What it is                                                         |
+|----------------------|-------------|--------------------------------------------------------------------|
+| `api_encryption_key` | all devices | Home Assistant API key (32 bytes, base64). OTA reuses the same key. |
+| `mac_address`        | starry sky  | BLE MAC address of the star ceiling kit                            |
 
-The same approach used for changing the Access Point values in the Wi-Fi subsection goes for the name of the ESP32 device
-being displayed on the Home Assistant dashboard. If, for any reason you want to change the default name of the device to
-something more meaningful to you, replace it with the following command:
+Generate a new API key with `openssl rand -base64 32`. Keep the existing one when you rebuild a device that is already
+adopted, or Home Assistant will need to adopt it again.
+
+## Device name ##
+
+The name lives in the device's `config.yaml` (`name` and `friendly_name`). Don't change `name` on a device that is
+already flashed: OTA updates and the `<name>.local` address depend on it. For a one-off build under a different name,
+override it from the command line:
+
 ```
-esphome -s name 'starry-sky-ble' -s friendly_name 'Starry Sky BLE' config/compile sounder.yaml
+docker compose run --rm stars -s name 'starry-sky-ble' -s friendly_name 'Starry Sky BLE' compile starry-sky.yaml
+```
+
+# Building #
+
+ESPHome runs in Docker, so nothing needs to be installed locally. The image version is set in `docker-compose.yaml`.
+
+```
+docker compose pull
+docker compose run --rm stars config starry-sky.yaml     # validate
+docker compose run --rm stars compile starry-sky.yaml    # build
+```
+
+Replace `starry-sky.yaml` with `sounder.yaml` for the sound player. `docker compose up -d` starts the ESPHome dashboard
+on port 6052 instead.
+
+# Flashing #
+
+## Over the network (OTA) ##
+
+When the device already runs firmware with the `ota:` block from `common.yaml`:
+
+```
+docker compose run --rm stars run starry-sky.yaml --device starry-sky-nash.local
+```
+
+An IP address works as well as the `.local` name.
+
+## First flash, or firmware without OTA ##
+
+- **USB:** plug the board in and use `--device /dev/ttyACM0` (or `/dev/ttyUSB0`). On WSL2, attach the port first with
+  [usbipd-win](https://github.com/dorssel/usbipd-win): `usbipd list`, `usbipd bind --busid <id>`,
+  `usbipd attach --wsl --busid <id>`. You can also flash `firmware.factory.bin` from a browser at
+  https://web.esphome.io.
+- **Captive portal:** if the device can't reach Wi-Fi, it starts its fallback access point. Connect to it, open
+  `http://192.168.4.1` and upload `firmware.ota.bin`, or use
+  `curl -F "update=@firmware.ota.bin" http://192.168.4.1/update`.
+
+# Tests #
+
+The BLE command builder has plain C++ unit tests:
+
+```
+g++ -std=c++17 -Wall tests/starrySky.cpp -o tests/starrySky && ./tests/starrySky
 ```
